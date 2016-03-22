@@ -5,6 +5,8 @@ from expense import expense
 import operator
 from collections import OrderedDict
 
+from dateutil import rrule
+
 def main():
 
     parser = argparse.ArgumentParser(prog='',
@@ -98,6 +100,28 @@ def main():
 
     for k, v in d.items():
         print("{:10.2f}  {:4.1f}%  {}".format(v, 100.0*v/d_tot['income'], k))
+
+
+    print("Expensive years:")
+
+    # get list of year in expensive order
+    d = {dt.strftime('%Y'): e.get_year(dt.year).sum()
+            for dt in rrule.rrule(rrule.YEARLY, dtstart=e.get_extreme_date()[0], until=e.get_extreme_date()[1])}
+    d = OrderedDict(sorted(d.items(), key=operator.itemgetter(1)))
+
+    for k, v in d.items():
+        print("{:10.2f}  {}".format(v, k))
+
+
+    print("Expensive months:")
+
+    # get list of month in expensive order
+    d = {dt.strftime('%Y-%m'): e.get_month(dt.year, dt.month).sum()
+            for dt in rrule.rrule(rrule.MONTHLY, dtstart=e.get_extreme_date()[0], until=e.get_extreme_date()[1])}
+    d = OrderedDict(sorted(d.items(), key=operator.itemgetter(1)))
+
+    for k, v in d.items():
+        print("{:10.2f}  {}".format(v, k))
 
 
 if __name__ == '__main__':
